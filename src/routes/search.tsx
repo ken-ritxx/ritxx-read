@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Shell } from "@/components/Shell";
 import { anilistSearch } from "@/lib/anilist";
-import { AlCard } from "./index";
+import { AlCard } from "@/components/AlCard";
 
 export const Route = createFileRoute("/search")({
   validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
