@@ -35,7 +35,7 @@ function toCard(m: any): MangaCard {
 const RATINGS = "&contentRating[]=safe&contentRating[]=suggestive";
 
 export const searchManga = createServerFn({ method: "GET" })
-  .inputValidator((d: { q?: string; order?: string; limit?: number }) => d)
+  .validator((d: { q?: string; order?: string; limit?: number }) => d)
   .handler(async ({ data }) => {
     const q = data.q ? `&title=${encodeURIComponent(data.q)}` : "";
     const order = data.order ?? "followedCount";
@@ -46,7 +46,7 @@ export const searchManga = createServerFn({ method: "GET" })
   });
 
 export const getManga = createServerFn({ method: "GET" })
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data }) => {
     const j = await md(`/manga/${data.id}?includes[]=cover_art&includes[]=author`);
     const m = j.data;
@@ -64,7 +64,7 @@ export const getManga = createServerFn({ method: "GET" })
 export type Chapter = { id: string; chapter: string | null; title: string | null; volume: string | null; group: string | null; publishAt: string };
 
 export const getChapters = createServerFn({ method: "GET" })
-  .inputValidator((d: { id: string }) => d)
+  .validator((d: { id: string }) => d)
   .handler(async ({ data }) => {
     const out: Chapter[] = [];
     for (let offset = 0; offset < 1000; offset += 500) {
@@ -95,7 +95,7 @@ export const getChapters = createServerFn({ method: "GET" })
   });
 
 export const getChapterPages = createServerFn({ method: "GET" })
-  .inputValidator((d: { chapterId: string }) => d)
+  .validator((d: { chapterId: string }) => d)
   .handler(async ({ data }) => {
     const [home, ch] = await Promise.all([
       md(`/at-home/server/${data.chapterId}`),
@@ -112,7 +112,7 @@ export const getChapterPages = createServerFn({ method: "GET" })
   });
 
 export const findByAnilist = createServerFn({ method: "GET" })
-  .inputValidator((d: { title: string; alId: number }) => d)
+  .validator((d: { title: string; alId: number }) => d)
   .handler(async ({ data }) => {
     const j = await md(`/manga?limit=10&title=${encodeURIComponent(data.title)}&order[relevance]=desc${RATINGS}&contentRating[]=erotica`);
     const list = j.data as any[];
