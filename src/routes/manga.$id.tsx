@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Shell, Cover } from "@/components/Shell";
+import { anilistCover } from "@/lib/anilist";
 import { getManga, getChapters } from "@/lib/mangadex.functions";
 
 const mangaQ = (id: string) => queryOptions({ queryKey: ["md", "manga", id], queryFn: () => getManga({ data: { id } }) });
@@ -29,13 +30,14 @@ function MangaPage() {
   const { id } = Route.useParams();
   const { data: m } = useSuspenseQuery(mangaQ(id));
   const { data: chapters } = useSuspenseQuery(chQ(id));
+  const cover = useQuery({ queryKey: ["al", "cover", m.anilistId], queryFn: () => anilistCover(Number(m.anilistId)), enabled: !!m.anilistId });
   const first = chapters[chapters.length - 1];
 
   return (
     <Shell>
       <div className="mx-auto max-w-6xl px-4 pt-8">
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-          <div className="w-44 md:w-full"><Cover src={m.anilistId ? null : null} title={m.title} /></div>
+          <div className="w-44 md:w-full"><Cover src={cover.data ?? null} title={m.title} /></div>
           <div>
             <h1 className="font-display text-5xl leading-none">{m.title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">

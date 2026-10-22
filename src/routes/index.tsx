@@ -1,14 +1,10 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { Shell, Cover } from "@/components/Shell";
 import { anilistList, alTitle, type AlManga } from "@/lib/anilist";
-import { searchManga, findByAnilist } from "@/lib/mangadex.functions";
+import { findByAnilist } from "@/lib/mangadex.functions";
 
-const latestQ = queryOptions({
-  queryKey: ["md", "latest"],
-  queryFn: () => searchManga({ data: { order: "latestUploadedChapter", limit: 18 } }),
-});
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,11 +15,10 @@ export const Route = createFileRoute("/")({
       { property: "og:description", content: "Trending manga from AniList, chapters from MangaDex." },
     ],
   }),
-  loader: ({ context }) => context.queryClient.ensureQueryData(latestQ),
   component: Home,
 });
 
-function AlCard({ m }: { m: AlManga }) {
+export function AlCard({ m }: { m: AlManga }) {
   const nav = useNavigate();
   const [busy, setBusy] = useState(false);
   return (
@@ -53,7 +48,7 @@ function AlCard({ m }: { m: AlManga }) {
 }
 
 function Home() {
-  const { data: latest } = useSuspenseQuery(latestQ);
+  const top = useQuery({ queryKey: ["al", "top"], queryFn: () => anilistList("SCORE_DESC", 12) });
   const trending = useQuery({ queryKey: ["al", "trending"], queryFn: () => anilistList("TRENDING_DESC") });
   const popular = useQuery({ queryKey: ["al", "popular"], queryFn: () => anilistList("POPULARITY_DESC", 12) });
   const hero = trending.data?.find((m) => m.bannerImage);
@@ -76,13 +71,8 @@ function Home() {
         <Row title="Trending Now">
           {trending.data?.map((m) => <AlCard key={m.id} m={m} />) ?? <Skel n={12} />}
         </Row>
-        <Row title="Latest Updates">
-          {latest.map((m) => (
-            <Link key={m.id} to="/manga/$id" params={{ id: m.id }} className="group">
-              <Cover src={m.cover} title={m.title} />
-              <p className="mt-2 line-clamp-2 text-sm font-medium">{m.title}</p>
-            </Link>
-          ))}
+        <Row title="Top Rated">
+          {top.data?.map((m) => <AlCard key={m.id} m={m} />) ?? <Skel n={12} />}
         </Row>
         <Row title="All-Time Popular">
           {popular.data?.map((m) => <AlCard key={m.id} m={m} />) ?? <Skel n={12} />}

@@ -1,15 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { Shell, Cover } from "@/components/Shell";
-import { searchManga } from "@/lib/mangadex.functions";
-
-const q = (s: string) =>
-  queryOptions({ queryKey: ["md", "search", s], queryFn: () => searchManga({ data: { q: s, limit: 36 } }) });
+import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
+import { Shell } from "@/components/Shell";
+import { anilistSearch } from "@/lib/anilist";
+import { AlCard } from "./index";
 
 export const Route = createFileRoute("/search")({
   validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
-  loaderDeps: ({ search }) => ({ q: search.q }),
-  loader: ({ context, deps }) => context.queryClient.ensureQueryData(q(deps.q)),
   head: () => ({
     meta: [
       { title: "Browse Manga — Ritxx Read" },
@@ -22,20 +18,16 @@ export const Route = createFileRoute("/search")({
 });
 
 function SearchPage() {
-  const { q: s } = Route.useSearch();
-  const { data } = useSuspenseQuery(q(s));
+  const { q } = Route.useSearch();
+  const { data, isPending } = useQuery({ queryKey: ["al", "search", q], queryFn: () => anilistSearch(q) });
   return (
     <Shell>
       <div className="mx-auto max-w-7xl px-4 pt-8">
-        <h1 className="mb-6 font-display text-4xl">{s ? `Results for "${s}"` : "Most Followed"}</h1>
-        {data.length === 0 && <p className="text-muted-foreground">No manga found.</p>}
+        <h1 className="mb-6 font-display text-4xl">{q ? `Results for "${q}"` : "Most Popular"}</h1>
+        {isPending && <p className="text-muted-foreground">Loading…</p>}
+        {data?.length === 0 && <p className="text-muted-foreground">No manga found.</p>}
         <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-6">
-          {data.map((m) => (
-            <Link key={m.id} to="/manga/$id" params={{ id: m.id }} className="group">
-              <Cover src={m.cover} title={m.title} />
-              <p className="mt-2 line-clamp-2 text-sm font-medium">{m.title}</p>
-            </Link>
-          ))}
+          {data?.map((m) => <AlCard key={m.id} m={m} />)}
         </div>
       </div>
     </Shell>

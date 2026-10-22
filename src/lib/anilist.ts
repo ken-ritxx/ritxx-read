@@ -24,13 +24,23 @@ export async function anilistList(sort: "TRENDING_DESC" | "POPULARITY_DESC" | "S
 
 export const alTitle = (m: AlManga) => m.title.english || m.title.romaji;
 
-export async function anilistSearch(q: string) {
-  const query = `query($q:String){Page(perPage:36){media(type:MANGA,search:$q,isAdult:false,sort:${'$'}{"POPULARITY_DESC"}){${FIELDS}}}}`;
+async function al(query: string, variables: Record<string, unknown>) {
   const r = await fetch("https://graphql.anilist.co", {
     method: "POST",
     headers: { "Content-Type": "application/json", Accept: "application/json" },
-    body: JSON.stringify({ query: query.replace('sort:$' + '{"POPULARITY_DESC"}', q ? "sort:SEARCH_MATCH" : "sort:POPULARITY_DESC"), variables: { q: q || undefined } }),
+    body: JSON.stringify({ query, variables }),
   });
   if (!r.ok) throw new Error("AniList error");
-  return (await r.json()).data.Page.media as AlManga[];
+  return (await r.json()).data;
+}
+
+export async function anilistSearch(q: string) {
+  const sort = q ? "SEARCH_MATCH" : "POPULARITY_DESC";
+  const d = await al(`query($q:String){Page(perPage:36){media(type:MANGA,search:$q,isAdult:false,sort:${sort}){${FIELDS}}}}`, { q: q || undefined });
+  return d.Page.media as AlManga[];
+}
+
+export async function anilistCover(id: number) {
+  const d = await al(`query($id:Int){Media(id:$id){coverImage{extraLarge}}}`, { id });
+  return d.Media.coverImage.extraLarge as string;
 }
