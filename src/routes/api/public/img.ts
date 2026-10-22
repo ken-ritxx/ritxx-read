@@ -18,8 +18,9 @@ export const Route = createFileRoute("/api/public/img")({
           return new Response("forbidden", { status: 403 });
         }
         const r = await fetch(target.toString(), { headers: { "User-Agent": "RitxxRead/1.0" } });
-        if (!r.ok) return new Response("upstream error", { status: 502 });
-        return new Response(r.body, {
+        if (!r.ok) return new Response("upstream " + r.status, { status: 502 });
+        const buf = await r.arrayBuffer();
+        return new Response(buf, {
           headers: {
             "content-type": r.headers.get("content-type") ?? "image/jpeg",
             "cache-control": "public, max-age=86400",
