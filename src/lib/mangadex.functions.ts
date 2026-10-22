@@ -17,7 +17,7 @@ function pickTitle(attr: any): string {
 }
 
 export function proxied(url: string) {
-  return `/api/public/img?u=${encodeURIComponent(url)}`;
+  return url;
 }
 
 function toCard(m: any): MangaCard {

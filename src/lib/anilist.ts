@@ -23,3 +23,14 @@ export async function anilistList(sort: "TRENDING_DESC" | "POPULARITY_DESC" | "S
 }
 
 export const alTitle = (m: AlManga) => m.title.english || m.title.romaji;
+
+export async function anilistSearch(q: string) {
+  const query = `query($q:String){Page(perPage:36){media(type:MANGA,search:$q,isAdult:false,sort:${'$'}{"POPULARITY_DESC"}){${FIELDS}}}}`;
+  const r = await fetch("https://graphql.anilist.co", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    body: JSON.stringify({ query: query.replace('sort:$' + '{"POPULARITY_DESC"}', q ? "sort:SEARCH_MATCH" : "sort:POPULARITY_DESC"), variables: { q: q || undefined } }),
+  });
+  if (!r.ok) throw new Error("AniList error");
+  return (await r.json()).data.Page.media as AlManga[];
+}

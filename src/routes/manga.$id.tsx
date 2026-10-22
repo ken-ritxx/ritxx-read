@@ -35,7 +35,7 @@ function MangaPage() {
     <Shell>
       <div className="mx-auto max-w-6xl px-4 pt-8">
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
-          <div className="w-44 md:w-full"><Cover src={m.cover} title={m.title} /></div>
+          <div className="w-44 md:w-full"><Cover src={m.anilistId ? null : null} title={m.title} /></div>
           <div>
             <h1 className="font-display text-5xl leading-none">{m.title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -51,9 +51,9 @@ function MangaPage() {
             </div>
             <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted-foreground line-clamp-[8]">{m.description}</p>
             {first && (
-              <Link to="/read/$chapterId" params={{ chapterId: first.id }} className="mt-6 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
-                Start Reading
-              </Link>
+              <a href={`https://mangadex.org/chapter/${first.id}`} target="_blank" rel="noreferrer" className="mt-6 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
+                Start Reading on MangaDex
+              </a>
             )}
           </div>
         </div>
@@ -62,12 +62,12 @@ function MangaPage() {
         {chapters.length === 0 && <p className="text-muted-foreground">No English chapters available on MangaDex.</p>}
         <div className="divide-y divide-border overflow-hidden rounded-md border border-border">
           {chapters.map((c) => (
-            <Link key={c.id} to="/read/$chapterId" params={{ chapterId: c.id }} className="flex items-center justify-between gap-4 bg-card px-4 py-3 hover:bg-secondary">
+            <a key={c.id} href={`https://mangadex.org/chapter/${c.id}`} target="_blank" rel="noreferrer" className="flex items-center justify-between gap-4 bg-card px-4 py-3 hover:bg-secondary">
               <span className="text-sm font-medium">
                 Ch. {c.chapter ?? "?"}{c.title ? ` — ${c.title}` : ""}
               </span>
               <span className="shrink-0 text-xs text-muted-foreground">{c.group ?? ""} · {new Date(c.publishAt).toLocaleDateString()}</span>
-            </Link>
+            </a>
           ))}
         </div>
       </div>
