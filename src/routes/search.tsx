@@ -5,7 +5,7 @@ import { anilistSearch } from "@/lib/anilist";
 import { AlCard } from "@/components/AlCard";
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
+  validateSearch: (s: Record<string, unknown>) => ({ q: typeof s["q"] === "string" ? s["q"] : "" }),
   head: () => ({
     meta: [
       { title: "Browse Manga — Ritxx Read" },
