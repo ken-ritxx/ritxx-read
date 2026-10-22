@@ -10,33 +10,80 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as MangaIdRouteImport } from './routes/manga.$id'
+import { Route as ReadChapterIdRouteImport } from './routes/read.$chapterId'
+import { Route as ApiPublicImgRouteImport } from './routes/api/public/img'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MangaIdRoute = MangaIdRouteImport.update({
+  id: '/manga/$id',
+  path: '/manga/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadChapterIdRoute = ReadChapterIdRouteImport.update({
+  id: '/read/$chapterId',
+  path: '/read/$chapterId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicImgRoute = ApiPublicImgRouteImport.update({
+  id: '/api/public/img',
+  path: '/api/public/img',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/manga/$id': typeof MangaIdRoute
+  '/read/$chapterId': typeof ReadChapterIdRoute
+  '/api/public/img': typeof ApiPublicImgRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/manga/$id': typeof MangaIdRoute
+  '/read/$chapterId': typeof ReadChapterIdRoute
+  '/api/public/img': typeof ApiPublicImgRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/search': typeof SearchRoute
+  '/manga/$id': typeof MangaIdRoute
+  '/read/$chapterId': typeof ReadChapterIdRoute
+  '/api/public/img': typeof ApiPublicImgRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    '/' | '/search' | '/manga/$id' | '/read/$chapterId' | '/api/public/img'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/search' | '/manga/$id' | '/read/$chapterId' | '/api/public/img'
+  id:
+    | '__root__'
+    | '/'
+    | '/search'
+    | '/manga/$id'
+    | '/read/$chapterId'
+    | '/api/public/img'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  SearchRoute: typeof SearchRoute
+  MangaIdRoute: typeof MangaIdRoute
+  ReadChapterIdRoute: typeof ReadChapterIdRoute
+  ApiPublicImgRoute: typeof ApiPublicImgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +95,43 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/manga/$id': {
+      id: '/manga/$id'
+      path: '/manga/$id'
+      fullPath: '/manga/$id'
+      preLoaderRoute: typeof MangaIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/read/$chapterId': {
+      id: '/read/$chapterId'
+      path: '/read/$chapterId'
+      fullPath: '/read/$chapterId'
+      preLoaderRoute: typeof ReadChapterIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/img': {
+      id: '/api/public/img'
+      path: '/api/public/img'
+      fullPath: '/api/public/img'
+      preLoaderRoute: typeof ApiPublicImgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  SearchRoute: SearchRoute,
+  MangaIdRoute: MangaIdRoute,
+  ReadChapterIdRoute: ReadChapterIdRoute,
+  ApiPublicImgRoute: ApiPublicImgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
