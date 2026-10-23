@@ -21,6 +21,8 @@ export const Route = createFileRoute("/manga/$id")({
       { name: "description", content: loaderData?.desc || "Read on Ritxx Read" },
       { property: "og:title", content: `${loaderData?.title ?? "Manga"} — Ritxx Read` },
       { property: "og:description", content: loaderData?.desc || "Read on Ritxx Read" },
+      { property: "og:type", content: "article" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: MangaPage,
@@ -38,8 +40,8 @@ function MangaPage() {
       <div className="mx-auto max-w-6xl px-4 pt-8">
         <div className="grid gap-8 md:grid-cols-[220px_1fr]">
           <div className="w-44 md:w-full"><Cover src={cover.data ?? null} title={m.title} /></div>
-          <div>
-            <h1 className="font-display text-5xl leading-none">{m.title}</h1>
+          <div className="min-w-0">
+            <h1 className="break-words font-display text-4xl leading-none md:text-5xl">{m.title}</h1>
             <p className="mt-2 text-sm text-muted-foreground">
               {m.author} {m.year ? `· ${m.year}` : ""} {m.status ? `· ${m.status}` : ""}
               {m.anilistId && (
@@ -64,11 +66,11 @@ function MangaPage() {
         {chapters.length === 0 && <p className="text-muted-foreground">No English chapters available on MangaDex.</p>}
         <div className="divide-y divide-border overflow-hidden rounded-md border border-border">
           {chapters.map((c) => (
-            <Link key={c.id} to="/read/$chapterId" params={{ chapterId: c.id }} className="flex items-center justify-between gap-4 bg-card px-4 py-3 hover:bg-secondary">
-              <span className="text-sm font-medium">
+            <Link key={c.id} to="/read/$chapterId" params={{ chapterId: c.id }} preload={false} className="flex flex-col items-start justify-between gap-1 bg-card px-4 py-3 hover:bg-secondary sm:flex-row sm:items-center sm:gap-4">
+              <span className="min-w-0 break-words text-sm font-medium">
                 Ch. {c.chapter ?? "?"}{c.title ? ` — ${c.title}` : ""}
               </span>
-              <span className="shrink-0 text-xs text-muted-foreground">{c.group ?? ""} · {new Date(c.publishAt).toLocaleDateString()}</span>
+              <span className="text-xs text-muted-foreground sm:shrink-0">{c.group ?? ""} · {new Date(c.publishAt).toLocaleDateString("en-GB", { timeZone: "UTC" })}</span>
             </Link>
           ))}
         </div>
