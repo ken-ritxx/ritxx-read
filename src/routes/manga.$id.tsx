@@ -53,9 +53,9 @@ function MangaPage() {
             </div>
             <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted-foreground line-clamp-[8]">{m.description}</p>
             {first && (
-              <a href={`https://mangadex.org/chapter/${first.id}`} target="_blank" rel="noreferrer" className="mt-6 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
-                Start Reading on MangaDex
-              </a>
+              <Link to="/read/$chapterId" params={{ chapterId: first.id }} className="mt-6 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
+                Start Reading
+              </Link>
             )}
           </div>
         </div>

@@ -110,7 +110,7 @@ export const getChapterPages = createServerFn({ method: "GET" })
   .validator((d: { chapterId: string }) => d)
   .handler(async ({ data }) => {
     const [home, ch] = await Promise.all([
-      md(`/at-home/server/${data.chapterId}`),
+      mdProxied(`/at-home/server/${data.chapterId}`),
       md(`/chapter/${data.chapterId}?includes[]=manga`),
     ]);
     const base = `${home.baseUrl}/data-saver/${home.chapter.hash}/`;
