@@ -9,6 +9,18 @@ async function md(path: string) {
   return r.json();
 }
 
+// Route through allorigins.win to avoid CORS blocks; fall back to a direct fetch.
+async function mdProxied(path: string) {
+  const url = API + path;
+  try {
+    const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { headers: UA });
+    if (!r.ok) throw new Error(`allorigins ${r.status}`);
+    return await r.json();
+  } catch {
+    return md(path);
+  }
+}
+
 export type MangaCard = { id: string; title: string; cover: string | null; status?: string; year?: number | null };
 
 function pickTitle(attr: any): string {
@@ -98,7 +110,7 @@ export const getChapterPages = createServerFn({ method: "GET" })
   .validator((d: { chapterId: string }) => d)
   .handler(async ({ data }) => {
     const [home, ch] = await Promise.all([
-      md(`/at-home/server/${data.chapterId}`),
+      mdProxied(`/at-home/server/${data.chapterId}`),
       md(`/chapter/${data.chapterId}?includes[]=manga`),
     ]);
     const base = `${home.baseUrl}/data-saver/${home.chapter.hash}/`;
