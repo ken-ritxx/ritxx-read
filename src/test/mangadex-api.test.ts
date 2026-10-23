@@ -15,8 +15,8 @@ describe("MangaDex reader requests", () => {
     const request = mangaDexJson("/manga");
     await vi.advanceTimersByTimeAsync(6000);
     expect(await request).toEqual({ result: "ok", data: [] });
-    expect(fetchMock.mock.calls[0][0]).toBe("https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.mangadex.org%2Fmanga");
-    expect(fetchMock.mock.calls[1][0]).toBe("https://api.mangadex.org/manga");
+    expect(fetchMock.mock.calls[0]?.[0]).toBe("https://api.allorigins.win/raw?url=https%3A%2F%2Fapi.mangadex.org%2Fmanga");
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("https://api.mangadex.org/manga");
   });
 
   it("builds full-quality vertical reader image URLs from data filenames", () => {
