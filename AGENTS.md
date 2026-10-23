@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep MangaDex fetches in the shared bounded-request helper, with an AllOrigins request and a server-side fallback, so a stalled proxy cannot block reader navigation indefinitely.
+- Validate at-home page data before returning image URLs; optional chapter metadata must not prevent readable pages from opening.
