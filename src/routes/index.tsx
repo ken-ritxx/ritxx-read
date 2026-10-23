@@ -13,6 +13,8 @@ export const Route = createFileRoute("/")({
       { name: "description", content: "Read manga free on Ritxx Read. Trending picks from AniList, chapters from MangaDex." },
       { property: "og:title", content: "Ritxx Read — Read Manga Online" },
       { property: "og:description", content: "Trending manga from AniList, chapters from MangaDex." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Home,

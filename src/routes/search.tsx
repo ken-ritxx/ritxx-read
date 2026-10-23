@@ -12,6 +12,8 @@ export const Route = createFileRoute("/search")({
       { name: "description", content: "Search and browse thousands of manga on Ritxx Read." },
       { property: "og:title", content: "Browse Manga — Ritxx Read" },
       { property: "og:description", content: "Search and browse thousands of manga." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: SearchPage,

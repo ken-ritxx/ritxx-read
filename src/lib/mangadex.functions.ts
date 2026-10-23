@@ -1,25 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-
-const API = "https://api.mangadex.org";
-const UA = { "User-Agent": "RitxxRead/1.0" };
-
-async function md(path: string) {
-  const r = await fetch(API + path, { headers: UA });
-  if (!r.ok) throw new Error(`MangaDex ${r.status}`);
-  return r.json();
-}
-
-// Route through allorigins.win to avoid CORS blocks; fall back to a direct fetch.
-async function mdProxied(path: string) {
-  const url = API + path;
-  try {
-    const r = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, { headers: UA });
-    if (!r.ok) throw new Error(`allorigins ${r.status}`);
-    return await r.json();
-  } catch {
-    return md(path);
-  }
-}
+import { z } from "zod";
+import { mangaDexJson as md, chapterImageUrls } from "./mangadex-api";
 
 export type MangaCard = { id: string; title: string; cover: string | null; status?: string; year?: number | null };
 
@@ -47,7 +28,7 @@ function toCard(m: any): MangaCard {
 const RATINGS = "&contentRating[]=safe&contentRating[]=suggestive";
 
 export const searchManga = createServerFn({ method: "GET" })
-  .validator((d: { q?: string; order?: string; limit?: number }) => d)
+  .inputValidator((d: { q?: string; order?: string; limit?: number }) => z.object({ q: z.string().max(200).optional(), order: z.enum(["followedCount", "relevance", "latestUploadedChapter", "createdAt", "rating", "year"]).optional(), limit: z.number().int().min(1).max(100).optional() }).parse(d))
   .handler(async ({ data }) => {
     const q = data.q ? `&title=${encodeURIComponent(data.q)}` : "";
     const order = data.order ?? "followedCount";
@@ -58,7 +39,7 @@ export const searchManga = createServerFn({ method: "GET" })
   });
 
 export const getManga = createServerFn({ method: "GET" })
-  .validator((d: { id: string }) => d)
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const j = await md(`/manga/${data.id}?includes[]=cover_art&includes[]=author`);
     const m = j.data;
@@ -76,7 +57,7 @@ export const getManga = createServerFn({ method: "GET" })
 export type Chapter = { id: string; chapter: string | null; title: string | null; volume: string | null; group: string | null; publishAt: string };
 
 export const getChapters = createServerFn({ method: "GET" })
-  .validator((d: { id: string }) => d)
+  .inputValidator((d: { id: string }) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const out: Chapter[] = [];
     for (let offset = 0; offset < 1000; offset += 500) {
@@ -107,24 +88,23 @@ export const getChapters = createServerFn({ method: "GET" })
   });
 
 export const getChapterPages = createServerFn({ method: "GET" })
-  .validator((d: { chapterId: string }) => d)
+  .inputValidator((d: { chapterId: string }) => z.object({ chapterId: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
     const [home, ch] = await Promise.all([
-      mdProxied(`/at-home/server/${data.chapterId}`),
-      md(`/chapter/${data.chapterId}?includes[]=manga`),
+      md(`/at-home/server/${data.chapterId}`),
+      md(`/chapter/${data.chapterId}?includes[]=manga`).catch(() => null),
     ]);
-    const base = `${home.baseUrl}/data-saver/${home.chapter.hash}/`;
-    const mangaId = ch.data.relationships.find((r: any) => r.type === "manga")?.id as string;
+    const mangaId = (ch?.data?.relationships?.find((r: any) => r.type === "manga")?.id as string | undefined) ?? null;
     return {
-      pages: (home.chapter.dataSaver as string[]).map((f) => proxied(base + f)),
+      pages: chapterImageUrls(home),
       mangaId,
-      chapter: ch.data.attributes.chapter as string | null,
-      title: ch.data.attributes.title as string | null,
+      chapter: (ch?.data?.attributes?.chapter as string | undefined) ?? null,
+      title: (ch?.data?.attributes?.title as string | undefined) ?? null,
     };
   });
 
 export const findByAnilist = createServerFn({ method: "GET" })
-  .validator((d: { title: string; alId: number }) => d)
+  .inputValidator((d: { title: string; alId: number }) => z.object({ title: z.string().min(1).max(200), alId: z.number().int().positive() }).parse(d))
   .handler(async ({ data }) => {
     const j = await md(`/manga?limit=10&title=${encodeURIComponent(data.title)}&order[relevance]=desc${RATINGS}&contentRating[]=erotica`);
     const list = j.data as any[];
