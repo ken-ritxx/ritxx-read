@@ -6,7 +6,7 @@ import { Link } from "@tanstack/react-router";
 import { AlCard } from "@/components/AlCard";
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (s: Record<string, unknown>): { q: string; type?: MangaType } => ({
+  validateSearch: (s: Record<string, unknown>): { q: string; type?: MangaType | undefined } => ({
     q: typeof s["q"] === "string" ? s["q"] : "",
     type: ["manga", "manhwa", "manhua"].includes(s["type"] as string) ? (s["type"] as MangaType) : undefined,
   }),
@@ -29,11 +29,11 @@ function SearchPage() {
   return (
     <Shell>
       <div className="mx-auto max-w-7xl px-4 pt-8">
-        <h1 className="mb-4 font-display text-4xl">{q ? `Results for "${q}"` : `Most Popular ${type ? type[0].toUpperCase() + type.slice(1) : ""}`}</h1>
+        <h1 className="mb-4 font-display text-4xl">{q ? `Results for "${q}"` : `Most Popular ${type ? type.charAt(0).toUpperCase() + type.slice(1) : ""}`}</h1>
         <div className="mb-6 flex flex-wrap gap-2">
           {(["", "manga", "manhwa", "manhua"] as const).map((t) => (
             <Link key={t || "all"} to="/search" search={{ q, type: t || undefined }} className={`rounded-md px-4 py-2 text-sm font-semibold ${type === t ? "bg-primary text-primary-foreground" : "bg-secondary text-secondary-foreground"}`}>
-              {t ? t[0].toUpperCase() + t.slice(1) : "All"}
+              {t ? t.charAt(0).toUpperCase() + t.slice(1) : "All"}
             </Link>
           ))}
         </div>
