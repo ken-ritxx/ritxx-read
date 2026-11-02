@@ -14,7 +14,10 @@ export function Shell({ children }: { children: ReactNode }) {
           </Link>
           <nav className="hidden gap-4 text-sm text-muted-foreground md:flex">
             <Link to="/" className="hover:text-foreground">Home</Link>
-            <Link to="/search" search={{ q: "" }} className="hover:text-foreground">Browse</Link>
+            <Link to="/search" search={{ q: "", type: "manga" }} className="hover:text-foreground">Manga</Link>
+            <Link to="/search" search={{ q: "", type: "manhwa" }} className="hover:text-foreground">Manhwa</Link>
+            <Link to="/search" search={{ q: "", type: "manhua" }} className="hover:text-foreground">Manhua</Link>
+            <Link to="/library" className="hover:text-foreground">Library</Link>
           </nav>
           <form
             className="ml-auto flex w-full max-w-xs items-center gap-2 rounded-md border border-input bg-card px-3 py-1.5"
@@ -31,7 +34,13 @@ export function Shell({ children }: { children: ReactNode }) {
               className="w-full bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </form>
+          <Link to="/library" className="text-sm text-muted-foreground hover:text-foreground md:hidden">Library</Link>
         </div>
+        <nav className="mx-auto flex max-w-7xl gap-4 overflow-x-auto px-4 pb-2 text-sm text-muted-foreground md:hidden">
+          <Link to="/search" search={{ q: "", type: "manga" }}>Manga</Link>
+          <Link to="/search" search={{ q: "", type: "manhwa" }}>Manhwa</Link>
+          <Link to="/search" search={{ q: "", type: "manhua" }}>Manhua</Link>
+        </nav>
       </header>
       <main>{children}</main>
       <footer className="mt-16 border-t border-border py-8 text-center text-xs text-muted-foreground">
