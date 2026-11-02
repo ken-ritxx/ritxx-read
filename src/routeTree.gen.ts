@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LibraryRouteImport } from './routes/library'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as MangaIdRouteImport } from './routes/manga.$id'
 import { Route as ReadChapterIdRouteImport } from './routes/read.$chapterId'
@@ -17,6 +18,11 @@ import { Route as ReadChapterIdRouteImport } from './routes/read.$chapterId'
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LibraryRoute = LibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -37,12 +43,14 @@ const ReadChapterIdRoute = ReadChapterIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
   '/manga/$id': typeof MangaIdRoute
   '/read/$chapterId': typeof ReadChapterIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
   '/manga/$id': typeof MangaIdRoute
   '/read/$chapterId': typeof ReadChapterIdRoute
@@ -50,20 +58,28 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/library': typeof LibraryRoute
   '/search': typeof SearchRoute
   '/manga/$id': typeof MangaIdRoute
   '/read/$chapterId': typeof ReadChapterIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/search' | '/manga/$id' | '/read/$chapterId'
+  fullPaths: '/' | '/library' | '/search' | '/manga/$id' | '/read/$chapterId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/search' | '/manga/$id' | '/read/$chapterId'
-  id: '__root__' | '/' | '/search' | '/manga/$id' | '/read/$chapterId'
+  to: '/' | '/library' | '/search' | '/manga/$id' | '/read/$chapterId'
+  id:
+    | '__root__'
+    | '/'
+    | '/library'
+    | '/search'
+    | '/manga/$id'
+    | '/read/$chapterId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LibraryRoute: typeof LibraryRoute
   SearchRoute: typeof SearchRoute
   MangaIdRoute: typeof MangaIdRoute
   ReadChapterIdRoute: typeof ReadChapterIdRoute
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library': {
+      id: '/library'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -104,6 +127,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LibraryRoute: LibraryRoute,
   SearchRoute: SearchRoute,
   MangaIdRoute: MangaIdRoute,
   ReadChapterIdRoute: ReadChapterIdRoute,
