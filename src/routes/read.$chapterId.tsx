@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useQueryErrorResetBoundary } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { addRecent } from "@/lib/library";
 import { LoaderCircle, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Shell } from "@/components/Shell";
@@ -51,6 +52,12 @@ function ReaderPage() {
   const { data, refetch, isFetching } = useSuspenseQuery(pagesQ(chapterId));
   const [failed, setFailed] = useState<Set<number>>(new Set());
   const [attempt, setAttempt] = useState(0);
+  useEffect(() => {
+    if (!data.mangaId) return;
+    let meta = { title: "Manga", cover: null as string | null };
+    try { meta = { ...meta, ...JSON.parse(sessionStorage.getItem(`rr-meta-${data.mangaId}`) || "{}") }; } catch {}
+    addRecent({ id: data.mangaId, title: meta.title, cover: meta.cover, chapterId, chapter: data.chapter, at: Date.now() });
+  }, [chapterId, data.mangaId]);
 
   return (
     <Shell>

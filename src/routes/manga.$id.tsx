@@ -3,6 +3,9 @@ import { queryOptions, useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { Shell, Cover } from "@/components/Shell";
 import { anilistCover } from "@/lib/anilist";
 import { getManga, getChapters } from "@/lib/mangadex.functions";
+import { Heart, BookmarkPlus, BookmarkCheck } from "lucide-react";
+import { useEffect } from "react";
+import { useList, toggle, type RecentRead } from "@/lib/library";
 
 const mangaQ = (id: string) => queryOptions({ queryKey: ["md", "manga", id], queryFn: () => getManga({ data: { id } }) });
 const chQ = (id: string) => queryOptions({ queryKey: ["md", "chapters", id], queryFn: () => getChapters({ data: { id } }) });
@@ -34,6 +37,13 @@ function MangaPage() {
   const { data: chapters } = useSuspenseQuery(chQ(id));
   const cover = useQuery({ queryKey: ["al", "cover", m.anilistId], queryFn: () => anilistCover(Number(m.anilistId)), enabled: !!m.anilistId });
   const first = chapters[chapters.length - 1];
+  const saved = { id, title: m.title, cover: cover.data ?? null };
+  const inLib = useList("library").some((x) => x.id === id);
+  const liked = useList("liked").some((x) => x.id === id);
+  const last = useList<RecentRead>("recent").find((x) => x.id === id);
+  useEffect(() => {
+    if (cover.data) sessionStorage.setItem(`rr-meta-${id}`, JSON.stringify(saved));
+  }, [cover.data]);
 
   return (
     <Shell>
@@ -54,8 +64,23 @@ function MangaPage() {
               ))}
             </div>
             <p className="mt-4 whitespace-pre-line text-sm leading-relaxed text-muted-foreground line-clamp-[8]">{m.description}</p>
+            <div className="mt-6 flex flex-wrap gap-2">
+              <button onClick={() => toggle("library", saved)} className="flex items-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:opacity-90">
+                {inLib ? <BookmarkCheck className="h-4 w-4 text-primary" /> : <BookmarkPlus className="h-4 w-4" />}
+                {inLib ? "In Library" : "Add to Library"}
+              </button>
+              <button onClick={() => toggle("liked", saved)} className="flex items-center gap-2 rounded-md bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground hover:opacity-90">
+                <Heart className={`h-4 w-4 ${liked ? "fill-primary text-primary" : ""}`} />
+                {liked ? "Liked" : "Like"}
+              </button>
+            </div>
+            {last && (
+              <Link to="/read/$chapterId" params={{ chapterId: last.chapterId }} className="mr-3 mt-4 inline-block rounded-md border border-primary px-6 py-3 font-semibold text-primary hover:bg-secondary">
+                Continue Ch. {last.chapter ?? "?"}
+              </Link>
+            )}
             {first && (
-              <Link to="/read/$chapterId" params={{ chapterId: first.id }} className="mt-6 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
+              <Link to="/read/$chapterId" params={{ chapterId: first.id }} className="mt-4 inline-block rounded-md bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">
                 Start Reading
               </Link>
             )}

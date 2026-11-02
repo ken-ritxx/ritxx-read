@@ -34,9 +34,12 @@ async function al(query: string, variables: Record<string, unknown>) {
   return (await r.json()).data;
 }
 
-export async function anilistSearch(q: string) {
+export type MangaType = "" | "manga" | "manhwa" | "manhua";
+const COUNTRY: Record<string, string> = { manga: "JP", manhwa: "KR", manhua: "CN" };
+
+export async function anilistSearch(q: string, type: MangaType = "") {
   const sort = q ? "SEARCH_MATCH" : "POPULARITY_DESC";
-  const d = await al(`query($q:String){Page(perPage:36){media(type:MANGA,search:$q,isAdult:false,sort:${sort}){${FIELDS}}}}`, { q: q || undefined });
+  const d = await al(`query($q:String,$c:CountryCode){Page(perPage:36){media(type:MANGA,search:$q,countryOfOrigin:$c,isAdult:false,sort:${sort}){${FIELDS}}}}`, { q: q || undefined, c: COUNTRY[type] });
   return d.Page.media as AlManga[];
 }
 
